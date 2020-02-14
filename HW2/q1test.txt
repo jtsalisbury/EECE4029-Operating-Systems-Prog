@@ -1,0 +1,6 @@
+q1
+q1.c
+q1test.txt
+TIME CMD
+  457 tty1     00:00:00 bash
+  565 tty1     00:00:00 ps
