@@ -24,51 +24,32 @@ int main(int argc, char* argv[]) {
 	}
 
 	const int SHM_SIZE = 1024;
-	const char FILENAME_STR[] = "shm.dat";
-	const char FILENAME_COUNT[] = "shm2.dat";
-
-	// Note: Two memory segments are created. 1 to hold the string and 1 to hold the count. 
-	// I tried doing both with pointer casting and incrememnting (one ptr as char* and one as int*, but came up short everytime).
+	const char FILENAME[] = "shm.dat";
 
 	// Generate a key
-	key_t keystr = ftok(FILENAME_STR, 1);
-	if (keystr == -1) {
-		perror("ftok");
-		exit(1);
-	}
-
-	key_t keycount = ftok(FILENAME_COUNT, 1);
-	if (keycount == -1) {
+	key_t key = ftok(FILENAME, 1);
+	if (key == -1) {
 		perror("ftok");
 		exit(1);
 	}
 
 	// Connect to and create the shared memory space
-	int shmidstr = shmget(keystr, SHM_SIZE, 0644|IPC_CREAT);
-	if (shmidstr == -1) {
-		perror("shmget");
-		exit(1);
-	}
-
-	int shmidcount = shmget(keycount, SHM_SIZE, 0644|IPC_CREAT);
-	if (shmidcount == -1) {
+	int shmid = shmget(key, SHM_SIZE, 0644|IPC_CREAT);
+	if (shmid == -1) {
 		perror("shmget");
 		exit(1);
 	}
 
 	// Attach to memory segment
-	char* str = (char *)shmat(shmidstr, (void *)0, 0);
-	if (str == (char *)-1) {
-		perror("shmat");
-		exit(1);
-	}
-
-	int* count = (int *)shmat(shmidcount, (void *)0, 0);
+	int* count = (int *)shmat(shmid, (void *)0, 0);
 	if (count == (int *)-1) {
 		perror("shmat");
 		exit(1);
 	}
-	*(count) = 0;
+
+	// Create a reference for where to store the string
+	char* str = (char *)count + sizeof(int);
+	*count = 0;
 
 	// Open the text file
 	FILE* sourceFile = fopen(argv[1], "r");
@@ -95,5 +76,4 @@ int main(int argc, char* argv[]) {
 
 	// Detach segments
 	shmdt(str);
-	shmdt(count);
 }
