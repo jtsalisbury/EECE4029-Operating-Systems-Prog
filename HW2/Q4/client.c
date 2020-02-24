@@ -76,4 +76,5 @@ int main(int argc, char* argv[]) {
 
 	// Detach segments
 	shmdt(str);
+	fclose(sourceFile);
 }
