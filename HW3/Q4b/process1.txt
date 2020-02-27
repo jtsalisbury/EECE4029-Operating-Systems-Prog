@@ -1,0 +1,7 @@
+process1
+p1writing
+p1shared
+p1memory
+p1section
+p1test
+p1stuff
